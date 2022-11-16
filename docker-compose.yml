@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+    wordpress:
+        container_name: "appweb"
+        image: wordpress
+        restart: always
+        ports:
+           - "8080:80"
+        environment:
+           WORDPRESS_DB_HOST: "dbwp"
+           WORDPRESS_DB_USER: "userwp"
+           WORDPRESS_DB_PASSWORD: "senha"
+           WORDPRESS_DB_NAME: "db_wordpress"
+        volumes:
+           - /data/app:/var/www/html
+        networks:
+           net-wp:
+              ipv4_address: 192.168.0.6
+
+    mysql:
+        container_name: "dbwp"
+        image: mysql:5.7
+        restart: always
+        ports:
+           - "3306:3306"
+        environment:
+           MYSQL_DATABASE: "db_wordpress"
+           MYSQL_USER: "userwp"
+           MYSQL_PASSWORD: "senha"
+           MYSQL_ROOT_PASSWORD: "senha123"
+        volumes:
+           - /data/db:/var/lib/mysql
+        networks:
+           net-wp:
+              ipv4_address: 192.168.0.3
+
+    phpadmin:
+        container_name: "phpadmin"
+        image: phpmyadmin/phpmyadmin
+        restart: always
+        ports:
+           - "9090:80"
+        environment:
+           PMA_ARBITRARY: 1
+           MYSQL_ROOT_PASSWORD: "senha123"
+        networks:
+           net-wp:
+              ipv4_address: 192.168.0.12
+
+
+networks:
+   net-wp:
+      driver: bridge
+      ipam:
+         config:
+            - subnet: "192.168.0.0/24"
+   #         gateway: "192.168.0.9"
